@@ -10,6 +10,8 @@ Description: Shiny lending-operations dashboard suite on a DuckDB SQL warehouse.
 License: MIT + file LICENSE
 Imports: 
     config,
+    DBI,
+    dbplyr,
     golem,
     shiny
 Encoding: UTF-8
