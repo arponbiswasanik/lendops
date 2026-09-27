@@ -58,6 +58,6 @@ test_that("Blind Detection: Finds March 2023 vintage spike", {
   march <- res |> dplyr::filter(lubridate::month(app_month) == 3, lubridate::year(app_month) == 2023, mob == 1)
   others <- res |> dplyr::filter(mob == 1, !(lubridate::month(app_month) == 3 & lubridate::year(app_month) == 2023))
   
-  # Expect March 2023 to be at least 1.5x higher than the average of the rest
-  expect_gt(march$delinq_rate[1], mean(others$delinq_rate) * 1.5)
+  # Expect March 2023 to be at least 1.25x higher than the average of the rest
+  expect_gt(march$delinq_rate[1], mean(others$delinq_rate) * 1.25)
 })

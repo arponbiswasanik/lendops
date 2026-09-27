@@ -22,16 +22,20 @@ app_server <- function(input, output, session) {
     tat_summary(con, branch = input$branch_filter, sector = input$sector_filter)
   })
   
+  # Render Sankey Diagram (Clean linear flow, no drop-offs)
   output$funnel_sankey <- networkD3::renderSankeyNetwork({
     df <- funnel_data()
     
-    nodes <- data.frame(name = c("Received", "Screening", "Credit Assessment", "Decision", "Documentation", "Disbursement", "Declined", "Withdrawn"))
-    
+    # Helper to safely get counts
     get_count <- function(stage_name) {
       val <- df$n[df$stage == stage_name]
       if (length(val) == 0) 0 else val
     }
     
+    # Define the 6 main stages of the happy path
+    nodes <- data.frame(name = c("Received", "Screening", "Credit Assessment", "Decision", "Documentation", "Disbursement"))
+    
+    # Define links: strictly linear (0->1, 1->2, etc.)
     links <- data.frame(
       source = c(0, 1, 2, 3, 4),
       target = c(1, 2, 3, 4, 5),
@@ -44,16 +48,18 @@ app_server <- function(input, output, session) {
       )
     )
     
+    # Remove 0-value links to keep Sankey clean
     links <- links[links$value > 0, ]
     
     networkD3::sankeyNetwork(
       Links = links, Nodes = nodes,
       Source = "source", Target = "target",
       Value = "value", NodeID = "name",
-      fontSize = 12, nodeWidth = 20, nodePadding = 15
+      fontSize = 12, nodeWidth = 20, nodePadding = 30 # Increased padding to fix overlap
     )
   })
   
+  # Render TAT Plot (Clean light-blue version)
   output$tat_plot <- plotly::renderPlotly({
     df <- tat_data()
     if (nrow(df) == 0) return(plotly::plotly_empty())

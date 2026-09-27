@@ -23,7 +23,7 @@ app_ui <- function() {
       title = "Origination Tracker",
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
-          width = 250,
+          width = 220,
           bslib::card_header("Filters"),
           selectInput("branch_filter", "Branch", 
                       choices = c("All", "Gulshan", "Dhanmondi", "Motijheel", "Chattogram", "Sylhet", "Khulna", "Rajshahi", "Mirpur"), 
@@ -32,9 +32,10 @@ app_ui <- function() {
                       choices = c("All", "Manufacturing", "Trading", "Services", "Agro", "Textile", "Construction"), 
                       selected = "All")
         ),
+        # Charts (stacked)
         bslib::card(
           bslib::card_header("Application Flow (Sankey)"),
-          bslib::card_body(networkD3::sankeyNetworkOutput("funnel_sankey", height = "350px"))
+          bslib::card_body(networkD3::sankeyNetworkOutput("funnel_sankey", height = "450px"))
         ),
         bslib::card(
           bslib::card_header("Turnaround Time (TAT) by Branch"),
