@@ -57,6 +57,40 @@ app_ui <- function() {
           bslib::card_body(plotly::plotlyOutput("roll_rate_plot", height = "400px"))
         )
       )
+    ),
+    
+    # --- Tab 3: KPI Cockpit ---
+    bslib::nav_panel(
+      title = "KPI Cockpit",
+      # Value Boxes Row
+      bslib::layout_columns(
+        col_widths = c(3, 3, 3, 3),
+        bslib::value_box(
+          title = "Total Applications",
+          value = textOutput("kpi_total_apps"),
+          showcase = shiny::icon("file-invoice")
+        ),
+        bslib::value_box(
+          title = "Approval Rate",
+          value = textOutput("kpi_approval_rate"),
+          showcase = shiny::icon("check-circle")
+        ),
+        bslib::value_box(
+          title = "Disbursed Amount",
+          value = textOutput("kpi_disbursed_amt"),
+          showcase = shiny::icon("coins")
+        ),
+        bslib::value_box(
+          title = "Avg Ticket Size",
+          value = textOutput("kpi_ticket_size"),
+          showcase = shiny::icon("ticket")
+        )
+      ),
+      # Trend Chart
+      bslib::card(
+        bslib::card_header("Disbursement vs Target Trend"),
+        bslib::card_body(plotly::plotlyOutput("disb_target_plot", height = "400px"))
+      )
     )
   )
 }
