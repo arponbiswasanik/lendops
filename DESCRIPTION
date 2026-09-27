@@ -17,7 +17,9 @@ Imports:
     golem,
     networkD3,
     plotly,
+    quarto,
     shiny,
+    targets,
     tidyr
 Encoding: UTF-8
 LazyData: true

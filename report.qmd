@@ -1,0 +1,74 @@
+---
+title: "lendops - Monthly Operations Report"
+format: 
+  html:
+    theme: flatly
+    toc: true
+execute:
+  echo: false
+  message: false
+  warning: false
+params:
+  month: "Latest"
+---
+
+```{r setup}
+library(ggplot2)
+library(scales)
+library(dplyr)
+library(targets)
+library(knitr)
+
+# Load data from the targets pipeline cache
+kpi_data <- tar_read(kpi_data)
+decline_reasons <- tar_read(decline_reasons)
+tat_data <- tar_read(tat_data)
+```
+
+# Executive Summary
+
+::: {.callout-note appearance="simple"}
+**Reporting Period:** `r params$month` | **Status:** Automated via `{targets}` pipeline
+:::
+
+This report provides an automated overview of the Credit-SME origination funnel and portfolio health. 
+
+During this period, the department processed **`r format(kpi_data$total_applications, big.mark = ",")`** applications, resulting in an approval rate of **`r percent(kpi_data$approval_rate, accuracy = 0.1)`**. Total disbursement volume stood at **BDT `r format(round(kpi_data$total_disbursed_amt / 10000000, 1), nsmall = 1)` Cr**, with an average ticket size of **BDT `r format(round(kpi_data$avg_ticket_size / 100000, 1), nsmall = 1)` Lakh**.
+
+## Decline Breakdown
+
+Of the `r format(kpi_data$total_applications - kpi_data$disbursed_loans, big.mark = ",")` applications not disbursed, the primary drivers were:
+
+```{r decline-table}
+decline_reasons |>
+  dplyr::mutate(percentage = count / sum(count)) |>
+  knitr::kable(col.names = c("Decline Reason", "Count", "Percentage"),
+               format.args = list(big.mark = ","), 
+               digits = 2) # kable formats numeric to 2 decimals by default for percentage
+```
+
+# Origination Turnaround Time (TAT)
+
+The chart below highlights the average processing time (in hours) for applications across different branches and stages. The SLA threshold for stage processing is 48 hours.
+
+```{r tat-chart, fig.width=10, fig.height=5}
+if (nrow(tat_data) > 0) {
+  # Highlight Documentation stage in red to make the bottleneck stand out
+  tat_data <- tat_data |>
+    mutate(stage_color = ifelse(stage == "Documentation", "Documentation", "Other Stages"))
+  
+  ggplot(tat_data, aes(x = branch, y = avg_tat_hours, fill = stage_color)) +
+    geom_col(position = "dodge") +
+    geom_hline(yintercept = 48, linetype = "dashed", color = "red", linewidth = 1) +
+    annotate("text", x = 1, y = 52, label = "SLA (48h)", color = "red", hjust = 0) +
+    labs(x = NULL, y = "Avg TAT (Hours)", fill = "Stage") +
+    scale_fill_manual(values = c("Documentation" = "#d9534f", "Other Stages" = "#5bc0de")) +
+    theme_minimal() +
+    theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1))
+}
+```
+
+::: {.callout-warning}
+**Key Insight - Process Bottleneck:** 
+The **Gulshan** and **Dhanmondi** branches are exhibiting severe bottlenecks in the **Documentation** stage, with processing times breaching the 48-hour SLA by 2x (averaging ~80 hours). Immediate operational review is recommended for these branches.
+:::
