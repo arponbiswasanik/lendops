@@ -1,48 +1,40 @@
 #' Calculate Vintage Delinquency Curves
 #'
-#' Computes the percentage of loans delinquent (DPD > 0) by months-on-book (MOB)
-#' for each origination cohort. Censors immature cohorts.
-#'
 #' @param con A DBI connection object
 #' @return A dataframe with cohort_month, mob, and delinq_rate
 #' @export
 vintage_curve <- function(con) {
-  tbl(con, "vw_disbursed_loans") |>
-    mutate(
-      # Use explicit SQL cast to ensure integer math for MOB
-      mob = sql("CAST((YEAR(snapshot_month) - YEAR(app_month)) * 12 + (MONTH(snapshot_month) - MONTH(app_month)) AS INTEGER)")
+  dplyr::tbl(con, "vw_disbursed_loans") |>
+    dplyr::mutate(
+      mob = dbplyr::sql("CAST((YEAR(snapshot_month) - YEAR(app_month)) * 12 + (MONTH(snapshot_month) - MONTH(app_month)) AS INTEGER)")
     ) |>
-    filter(mob >= 0) |>
-    group_by(app_month, mob) |>
-    summarise(
-      total_loans = n(),
+    dplyr::filter(mob >= 0) |>
+    dplyr::group_by(app_month, mob) |>
+    dplyr::summarise(
+      total_loans = dplyr::n(),
       delinq_loans = sum(dpd > 0, na.rm = TRUE),
       .groups = "drop"
     ) |>
-    mutate(delinq_rate = delinq_loans / total_loans) |>
-    collect()
+    dplyr::mutate(delinq_rate = delinq_loans / total_loans) |>
+    dplyr::collect()
 }
 
 #' Calculate Roll-Rate Migration Matrix
-#'
-#' Computes the month-over-month transition probabilities between DPD buckets.
 #'
 #' @param con A DBI connection object
 #' @return A dataframe with from_dpd, to_dpd, count, and transition_rate
 #' @export
 roll_rate_matrix <- function(con) {
-  tbl(con, "loan_performance") |>
-    group_by(loan_id) |>
-    # Use window_order instead of arrange to avoid SQL subquery errors
+  dplyr::tbl(con, "loan_performance") |>
+    dplyr::group_by(loan_id) |>
     dbplyr::window_order(snapshot_month) |>
-    mutate(prev_dpd = lag(dpd)) |>
-    ungroup() |>
-    filter(!is.na(prev_dpd)) |>
-    group_by(prev_dpd, dpd) |>
-    summarise(count = n(), .groups = "drop") |>
-    # Group by prev_dpd ONLY to calculate the transition probability
-    group_by(prev_dpd) |>
-    mutate(transition_rate = count / sum(count)) |>
-    ungroup() |>
-    collect()
+    dplyr::mutate(prev_dpd = dplyr::lag(dpd)) |>
+    dplyr::ungroup() |>
+    dplyr::filter(!is.na(prev_dpd)) |>
+    dplyr::group_by(prev_dpd, dpd) |>
+    dplyr::summarise(count = dplyr::n(), .groups = "drop") |>
+    dplyr::group_by(prev_dpd) |>
+    dplyr::mutate(transition_rate = count / sum(count)) |>
+    dplyr::ungroup() |>
+    dplyr::collect()
 }
