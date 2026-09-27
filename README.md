@@ -31,6 +31,29 @@ graph TD
 
 ---
 
+## Repository Layout
+
+```text
+lendops/
+├── R/                     # Core analytics engine functions (dbplyr SQL queries)
+├── data-raw/              # Scripts for generating synthetic data and DuckDB warehouse
+│   ├── 01_generate_origination.R
+│   ├── 02_generate_performance.R
+│   └── 03_build_duckdb.R
+├── data/                  # Generated .rda files (applications, stages, performance)
+├── inst/
+│   ├── sql/               # Explicit DDL schema (CREATE TABLE / indexes / views)
+│   └── testdata/          # DuckDB database file and the ground-truth oracle
+├── tests/
+│   └── testthat/          # Unit tests, including blind anomaly detection suite
+├── app_ui.R               # Shiny UI definition (bslib layout, cards, filters)
+├── app_server.R           # Shiny server logic (reactives, plotly, networkD3)
+├── _targets.R             # Pipeline orchestration for automated reporting
+└── report.qmd             # Parameterized Quarto report rendered by {targets}
+```
+
+---
+
 ## Module Status
 
 | Module | Description |
