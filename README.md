@@ -97,10 +97,19 @@ The project utilizes a self-checking synthetic data generation protocol designed
 
 - **Synthetic Data:** All application and performance data is synthetically generated. Real-world banking data will contain edge cases in timestamp formatting, sector mappings, and unstructured decline reasons not present here.
 - **Sankey Simplification:** The Sankey diagram visualizes the primary linear "happy path" of an application (Received to Disbursement). It does not visualize complex, multi-directional transition paths between terminal states (e.g., an application moving backward from Decision to Credit Assessment).
-- **Scope Exclusions:** Per the explicit requirements of the targeted job description, Bangladesh Bank regulatory classifications (BRPD circulars) and Behavioral Scoring ML models were intentionally scoped out to maintain focus on operational reporting and SQL proficiency.
+- **Scope Exclusions:** To maintain a focus on operational data engineering, SQL analytics, and dashboarding, granular regulatory classification logic and behavioral scoring ML models were intentionally scoped out of this iteration.
 
 ---
 
+## Application Screenshots
+<img width="1917" height="956" alt="Screenshot 2026-09-27 165815" src="https://github.com/user-attachments/assets/736280a4-160b-4246-a79a-9e64aa24a856" />
+<img width="1917" height="957" alt="Screenshot 2026-09-27 161044" src="https://github.com/user-attachments/assets/99477826-a291-46b6-a73d-79a3f37e84fa" />
+<img width="1917" height="938" alt="Screenshot 2026-09-27 161102" src="https://github.com/user-attachments/assets/f953b20c-c476-4c2e-95b3-e8beaa50968c" />
+<img width="1892" height="781" alt="Screenshot 2026-09-27 161142" src="https://github.com/user-attachments/assets/b3932e52-fac8-46e1-b095-6f3f26b3958a" />
+<img width="1895" height="897" alt="Screenshot 2026-09-27 161213" src="https://github.com/user-attachments/assets/441081be-9375-4cfe-9533-a21b9de40949" />
+
+
+---
 ## How to Run
 
 **1. Clone the repository.**
