@@ -11,14 +11,29 @@ The project is built as an R package using the golem framework. Data is generate
 
 ```mermaid
 graph TD
-    A[data-raw/ Generators] -->|app_data, stage_data, perf_data| B(data/*.rda)
-    A -->|Ground Truth| C(inst/testdata/oracle.rds)
-    B --> D[data-raw/03_build_duckdb.R]
-    D --> E[(inst/testdata/lendops.duckdb)]
-    E --> F[R/ Engine Functions: dbplyr]
-    F --> G[Shiny App UI: bslib]
-    E --> H[_targets.R Pipeline]
-    H --> I[report.qmd / HTML]
+    subgraph Data Generation Layer
+        A[data-raw/ Generators] -->|app_data, stage_data, perf_data| B(data/*.rda)
+        A -->|Ground Truth| C(inst/testdata/oracle.rds)
+        B --> D[data-raw/03_build_duckdb.R]
+        D --> E[(inst/testdata/lendops.duckdb)]
+    end
+
+    subgraph Application Layer
+        E -->|dbplyr lazy eval| F[R/ Engine Functions]
+        F --> G[Shiny App: app_ui.R / app_server.R]
+    end
+
+    subgraph Automation Layer
+        E -->|DBI direct connection| H[_targets.R Pipeline]
+        H --> I[report.qmd]
+        I --> J(HTML Report)
+    end
+
+    subgraph Validation Layer
+        F --> K[tests/testthat/]
+        C --> K
+        E --> K
+    end
 ```
 
 **Core Technologies:**
